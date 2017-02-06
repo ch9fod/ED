@@ -24,6 +24,7 @@ model.a = Param(model.G)
 model.b = Param(model.G)
 model.Pmin = Param(model.G)
 model.Pmax = Param(model.G)
+#added just to calculate emissions
 model.d = Param(model.G)
 model.e = Param(model.G)
 model.f = Param(model.G)
@@ -48,7 +49,7 @@ def minp(model,i):
     return model.P[i] >= model.Pmin[i]
 model.minprod = Constraint(model.G, rule = minp)
 
-def demand_r(model):
+def demand_r(model,i):
     return model.D == sum(model.P[i] for i in model.G)
 model.demand = Constraint(model.G, rule = demand_r)
 
@@ -58,9 +59,7 @@ model.demand = Constraint(model.G, rule = demand_r)
 #objective
 def cost_rule(model):
     return sum(model.a[i]*model.P[i] + 
-               0.5*model.b[i]*model.P[i]**2 + 
-               10*model.d[i] + 10*model.e[i]*model.P[i] + 
-               10*model.f[i]*model.P[i]**2 for i in model.G)
+               0.5*model.b[i]*model.P[i]**2 for i in model.G)
 #default is to minimize        
 model.OBJ = Objective(rule=cost_rule) 
 
@@ -75,6 +74,8 @@ else:
 instance = model.create_instance(datafile)
 instance.dual = Suffix(direction=Suffix.IMPORT)
 results = solver.solve(instance)
+#instance.solutions.load_from(results)
+#print(results)
 
 
 # In[8]:
